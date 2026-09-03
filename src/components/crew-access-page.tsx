@@ -5,11 +5,11 @@ import { useRouter } from "@/components/next-compat/navigation";
 import { ArrowLeft, Eye, EyeOff, KeyRound, LoaderCircle, Send, UserPlus, X } from "lucide-react";
 
 type CrewAccessPageProps = {
-  mode: "login" | "signup";
+  mode: "login" | "signup" | "admin-login";
 };
 
-async function loginWithCredentials(username: string, password: string) {
-  const response = await fetch("/api/admin/login", {
+async function loginWithCredentials(endpoint: string, username: string, password: string) {
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -20,7 +20,9 @@ async function loginWithCredentials(username: string, password: string) {
 }
 
 export function CrewAccessPage({ mode }: CrewAccessPageProps) {
-  const isLogin = mode === "login";
+  const isAdminLogin = mode === "admin-login";
+  const isLogin = mode === "login" || isAdminLogin;
+  const loginEndpoint = isAdminLogin ? "/api/admin/login" : "/api/player/login";
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,6 +54,7 @@ export function CrewAccessPage({ mode }: CrewAccessPageProps) {
     setLoading(true);
     try {
       const destination = await loginWithCredentials(
+        loginEndpoint,
         String(data.get("username") ?? ""),
         String(data.get("password") ?? ""),
       );
@@ -68,7 +71,7 @@ export function CrewAccessPage({ mode }: CrewAccessPageProps) {
     setGoogleLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1200));
     try {
-      const destination = await loginWithCredentials("player@gmail.com", "player");
+      const destination = await loginWithCredentials("/api/player/login", "player@gmail.com", "player");
       router.push(destination);
       router.refresh();
     } catch (err) {
@@ -90,17 +93,21 @@ export function CrewAccessPage({ mode }: CrewAccessPageProps) {
           <div className="flex size-11 items-center justify-center rounded-md bg-coral text-white">
             {isLogin ? <KeyRound className="size-5" /> : <UserPlus className="size-5" />}
           </div>
-          <p className="mt-6 text-xs font-black tracking-[.18em] text-coral">{isLogin ? "PORTAL ACCESS" : "CREW ACCESS"}</p>
-          <h1 className="mt-2 text-4xl font-black uppercase tracking-[.04em]">{isLogin ? "Login" : "Sign up"}
+          <p className="mt-6 text-xs font-black tracking-[.18em] text-coral">{isAdminLogin ? "STUDIO ADMIN" : isLogin ? "PORTAL ACCESS" : "CREW ACCESS"}</p>
+          <h1 className="mt-2 text-4xl font-black uppercase tracking-[.04em]">{isAdminLogin ? "Admin Login" : isLogin ? "Login" : "Sign up"}
           </h1>
           <p className="mt-3 leading-relaxed text-navy/60">
-            {isLogin ? "Enter your account credentials to open your private Crew On Set portal." : "Join the community list for production updates and playtest calls."}
+            {isAdminLogin ? "Enter your studio admin credentials to open the Crew On Set console." : isLogin ? "Enter your account credentials to open your private Crew On Set portal." : "Join the community list for production updates and playtest calls."}
           </p>
-          {isLogin && <div className="mt-4 space-y-1 rounded-md border border-navy/10 bg-navy/5 px-3 py-2 text-xs font-bold text-navy/55"><p>--This is demo accounts only--</p><p>Player: player@gmail.com / player</p><p>Admin: admin / admin</p></div>}
+          {isAdminLogin ? (
+            <div className="mt-4 space-y-1 rounded-md border border-navy/10 bg-navy/5 px-3 py-2 text-xs font-bold text-navy/55"><p>--This is a demo account only--</p><p>Admin: admin / admin</p></div>
+          ) : isLogin ? (
+            <div className="mt-4 space-y-1 rounded-md border border-navy/10 bg-navy/5 px-3 py-2 text-xs font-bold text-navy/55"><p>--This is a demo account only--</p><p>Player: player@gmail.com / player</p></div>
+          ) : null}
           <form onSubmit={handleSubmit} className="mt-7">
             {isLogin ? (
               <>
-                <label className="form-label">EMAIL<input className="form-input" name="username" autoComplete="username" required placeholder="player@gmail.com" /></label>
+                <label className="form-label">{isAdminLogin ? "USERNAME" : "EMAIL"}<input className="form-input" name="username" autoComplete="username" required placeholder={isAdminLogin ? "admin" : "player@gmail.com"} /></label>
                 <label className="form-label mt-4">PASSWORD
 
                   <span className="relative block">
@@ -110,11 +117,13 @@ export function CrewAccessPage({ mode }: CrewAccessPageProps) {
                     </button>
                   </span>
                 </label>
-                <div className="mt-2 text-right">
-                  <button type="button" onClick={() => setForgotOpen(true)} className="text-xs font-black uppercase tracking-wide text-coral hover:underline">
-                    Forgot password?
-                  </button>
-                </div>
+                {!isAdminLogin && (
+                  <div className="mt-2 text-right">
+                    <button type="button" onClick={() => setForgotOpen(true)} className="text-xs font-black uppercase tracking-wide text-coral hover:underline">
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -140,36 +149,40 @@ export function CrewAccessPage({ mode }: CrewAccessPageProps) {
             )}
             {error && <p role="alert" className="mt-4 text-sm font-bold text-coral">{error}</p>}
             <button disabled={loading} type="submit" className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-5 py-3.5 text-sm font-black tracking-wider text-white transition hover:bg-coral disabled:cursor-wait disabled:opacity-70">
-              {loading ? <><LoaderCircle className="size-4 animate-spin" /> SIGNING IN</> : <>{isLogin ? "ENTER PORTAL" : "JOIN THE CREW"} <Send className="size-4" /></>}
+              {loading ? <><LoaderCircle className="size-4 animate-spin" /> SIGNING IN</> : <>{isAdminLogin ? "ENTER CONSOLE" : isLogin ? "ENTER PORTAL" : "JOIN THE CREW"} <Send className="size-4" /></>}
             </button>
 
-            <div className="my-4 flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-navy/35">
-              <span className="h-px flex-1 bg-navy/10" /> or <span className="h-px flex-1 bg-navy/10" />
-            </div>
+            {!isAdminLogin && (
+              <>
+                <div className="my-4 flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-navy/35">
+                  <span className="h-px flex-1 bg-navy/10" /> or <span className="h-px flex-1 bg-navy/10" />
+                </div>
 
-            <button
-              type="button"
-              disabled={googleLoading}
-              onClick={handleGoogleMock}
-              className="inline-flex w-full items-center justify-center gap-3 rounded-md border border-navy/20 bg-white px-5 py-3.5 text-sm font-black tracking-wider text-navy transition hover:bg-navy/5 disabled:cursor-wait disabled:opacity-70"
-            >
-              {googleLoading ? (
-                <><LoaderCircle className="size-4 animate-spin" /> CONNECTING TO GOOGLE (DEMO)</>
-              ) : (
-                <>
-                  <svg className="size-5" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill="#4285F4" d="M21.35 12.23c0-.79-.07-1.55-.2-2.27H12v4.3h5.23a4.47 4.47 0 0 1-1.94 2.93v2.44h3.14c1.84-1.7 2.92-4.2 2.92-7.4Z" />
-                    <path fill="#34A853" d="M12 21.8c2.63 0 4.84-.87 6.45-2.35l-3.14-2.44c-.87.58-1.98.92-3.31.92-2.55 0-4.71-1.72-5.49-4.04H3.27v2.52A9.75 9.75 0 0 0 12 21.8Z" />
-                    <path fill="#FBBC05" d="M6.51 13.89a5.86 5.86 0 0 1 0-3.76V7.61H3.27a9.75 9.75 0 0 0 0 8.8l3.24-2.52Z" />
-                    <path fill="#EA4335" d="M12 6.09c1.43 0 2.72.49 3.74 1.45l2.8-2.8C16.83 3.18 14.63 2.2 12 2.2a9.75 9.75 0 0 0-8.73 5.41l3.24 2.52C7.29 7.81 9.45 6.09 12 6.09Z" />
-                  </svg>
-                  CONTINUE WITH GOOGLE (DEMO)
-                </>
-              )}
-            </button>
-            <p className="mt-2 text-center text-[11px] leading-relaxed text-navy/40">
-              Simulated OAuth for demo purposes — signs you in as the demo player.
-            </p>
+                <button
+                  type="button"
+                  disabled={googleLoading}
+                  onClick={handleGoogleMock}
+                  className="inline-flex w-full items-center justify-center gap-3 rounded-md border border-navy/20 bg-white px-5 py-3.5 text-sm font-black tracking-wider text-navy transition hover:bg-navy/5 disabled:cursor-wait disabled:opacity-70"
+                >
+                  {googleLoading ? (
+                    <><LoaderCircle className="size-4 animate-spin" /> CONNECTING TO GOOGLE (DEMO)</>
+                  ) : (
+                    <>
+                      <svg className="size-5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="#4285F4" d="M21.35 12.23c0-.79-.07-1.55-.2-2.27H12v4.3h5.23a4.47 4.47 0 0 1-1.94 2.93v2.44h3.14c1.84-1.7 2.92-4.2 2.92-7.4Z" />
+                        <path fill="#34A853" d="M12 21.8c2.63 0 4.84-.87 6.45-2.35l-3.14-2.44c-.87.58-1.98.92-3.31.92-2.55 0-4.71-1.72-5.49-4.04H3.27v2.52A9.75 9.75 0 0 0 12 21.8Z" />
+                        <path fill="#FBBC05" d="M6.51 13.89a5.86 5.86 0 0 1 0-3.76V7.61H3.27a9.75 9.75 0 0 0 0 8.8l3.24-2.52Z" />
+                        <path fill="#EA4335" d="M12 6.09c1.43 0 2.72.49 3.74 1.45l2.8-2.8C16.83 3.18 14.63 2.2 12 2.2a9.75 9.75 0 0 0-8.73 5.41l3.24 2.52C7.29 7.81 9.45 6.09 12 6.09Z" />
+                      </svg>
+                      CONTINUE WITH GOOGLE (DEMO)
+                    </>
+                  )}
+                </button>
+                <p className="mt-2 text-center text-[11px] leading-relaxed text-navy/40">
+                  Simulated OAuth for demo purposes — signs you in as the demo player.
+                </p>
+              </>
+            )}
 
           </form>
         </section>
