@@ -92,7 +92,6 @@ export type PlayerNotification = {
   target?: {
     kind: NotificationTargetKind;
     playerIds?: string[] | undefined;
-    group?: string | undefined;
   };
 };
 
