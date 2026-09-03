@@ -1,11 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import {
-  ADMIN_COOKIE,
-  ADMIN_SESSION,
-  PLAYER_COOKIE,
-  PLAYER_SESSION,
-} from "@/lib/session.constants";
+import { ADMIN_COOKIE, ADMIN_SESSION, PLAYER_COOKIE } from "@/lib/session.constants";
 
 function cookie(name: string, value: string, maxAge: number) {
   const secure = process.env["NODE_ENV"] === "production" ? "; Secure" : "";
@@ -22,27 +17,16 @@ export const Route = createFileRoute("/api/admin/login")({
         };
 
         const isAdmin = username === "admin" && password === "admin";
-        const isPlayer = username === "player@gmail.com" && password === "player";
 
-        if (!isAdmin && !isPlayer) {
-          return Response.json({ error: "Invalid email or password." }, { status: 401 });
+        if (!isAdmin) {
+          return Response.json({ error: "Invalid admin credentials." }, { status: 401 });
         }
 
         const headers = new Headers({ "content-type": "application/json" });
-        headers.append(
-          "set-cookie",
-          cookie(
-            isAdmin ? ADMIN_COOKIE : PLAYER_COOKIE,
-            isAdmin ? ADMIN_SESSION : PLAYER_SESSION,
-            60 * 60 * 8,
-          ),
-        );
-        headers.append("set-cookie", cookie(isAdmin ? PLAYER_COOKIE : ADMIN_COOKIE, "", 0));
+        headers.append("set-cookie", cookie(ADMIN_COOKIE, ADMIN_SESSION, 60 * 60 * 8));
+        headers.append("set-cookie", cookie(PLAYER_COOKIE, "", 0));
 
-        return new Response(
-          JSON.stringify({ success: true, destination: isAdmin ? "/admin" : "/portal" }),
-          { headers },
-        );
+        return new Response(JSON.stringify({ success: true, destination: "/admin" }), { headers });
       },
     },
   },

@@ -29,6 +29,7 @@ import { Route as AdminPartnershipsRouteImport } from './routes/admin.partnershi
 import { Route as AdminPlayersRouteImport } from './routes/admin.players'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
+import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as PortalIndexRouteImport } from './routes/portal.index'
 import { Route as PortalAchievementsRouteImport } from './routes/portal.achievements'
 import { Route as PortalAlmanacRouteImport } from './routes/portal.almanac'
@@ -39,6 +40,7 @@ import { Route as PortalShopRouteImport } from './routes/portal.shop'
 import { Route as AdminAdsIdRouteImport } from './routes/admin.ads.$id'
 import { Route as ApiAdminLoginRouteImport } from './routes/api/admin/login'
 import { Route as ApiAdminLogoutRouteImport } from './routes/api/admin/logout'
+import { Route as ApiPlayerLoginRouteImport } from './routes/api/player/login'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -140,6 +142,11 @@ const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
   path: '/transactions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin_/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortalIndexRoute = PortalIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -190,6 +197,11 @@ const ApiAdminLogoutRoute = ApiAdminLogoutRouteImport.update({
   path: '/api/admin/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPlayerLoginRoute = ApiPlayerLoginRouteImport.update({
+  id: '/api/player/login',
+  path: '/api/player/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -211,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/admin/players': typeof AdminPlayersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
+  '/admin/login': typeof AdminLoginRoute
   '/portal/achievements': typeof PortalAchievementsRoute
   '/portal/almanac': typeof PortalAlmanacRoute
   '/portal/friends': typeof PortalFriendsRoute
@@ -222,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/admin/ads/$id': typeof AdminAdsIdRoute
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/player/login': typeof ApiPlayerLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -241,6 +255,7 @@ export interface FileRoutesByTo {
   '/admin/players': typeof AdminPlayersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
+  '/admin/login': typeof AdminLoginRoute
   '/portal/achievements': typeof PortalAchievementsRoute
   '/portal/almanac': typeof PortalAlmanacRoute
   '/portal/friends': typeof PortalFriendsRoute
@@ -252,6 +267,7 @@ export interface FileRoutesByTo {
   '/admin/ads/$id': typeof AdminAdsIdRoute
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/player/login': typeof ApiPlayerLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -274,6 +290,7 @@ export interface FileRoutesById {
   '/admin/players': typeof AdminPlayersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
+  '/admin_/login': typeof AdminLoginRoute
   '/portal/achievements': typeof PortalAchievementsRoute
   '/portal/almanac': typeof PortalAlmanacRoute
   '/portal/friends': typeof PortalFriendsRoute
@@ -285,6 +302,7 @@ export interface FileRoutesById {
   '/admin/ads/$id': typeof AdminAdsIdRoute
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/player/login': typeof ApiPlayerLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -308,6 +326,7 @@ export interface FileRouteTypes {
     | '/admin/players'
     | '/admin/settings'
     | '/admin/transactions'
+    | '/admin/login'
     | '/portal/achievements'
     | '/portal/almanac'
     | '/portal/friends'
@@ -319,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/ads/$id'
     | '/api/admin/login'
     | '/api/admin/logout'
+    | '/api/player/login'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -338,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin/players'
     | '/admin/settings'
     | '/admin/transactions'
+    | '/admin/login'
     | '/portal/achievements'
     | '/portal/almanac'
     | '/portal/friends'
@@ -349,6 +370,7 @@ export interface FileRouteTypes {
     | '/admin/ads/$id'
     | '/api/admin/login'
     | '/api/admin/logout'
+    | '/api/player/login'
   id:
     | '__root__'
     | '/'
@@ -370,6 +392,7 @@ export interface FileRouteTypes {
     | '/admin/players'
     | '/admin/settings'
     | '/admin/transactions'
+    | '/admin_/login'
     | '/portal/achievements'
     | '/portal/almanac'
     | '/portal/friends'
@@ -381,6 +404,7 @@ export interface FileRouteTypes {
     | '/admin/ads/$id'
     | '/api/admin/login'
     | '/api/admin/logout'
+    | '/api/player/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -395,8 +419,10 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   StoryRoute: typeof StoryRoute
   TeamRoute: typeof TeamRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   ApiAdminLoginRoute: typeof ApiAdminLoginRoute
   ApiAdminLogoutRoute: typeof ApiAdminLogoutRoute
+  ApiPlayerLoginRoute: typeof ApiPlayerLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -541,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTransactionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin_/login': {
+      id: '/admin_/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portal/': {
       id: '/portal/'
       path: '/'
@@ -611,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminLogoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/player/login': {
+      id: '/api/player/login'
+      path: '/api/player/login'
+      fullPath: '/api/player/login'
+      preLoaderRoute: typeof ApiPlayerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -677,8 +717,10 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   StoryRoute: StoryRoute,
   TeamRoute: TeamRoute,
+  AdminLoginRoute: AdminLoginRoute,
   ApiAdminLoginRoute: ApiAdminLoginRoute,
   ApiAdminLogoutRoute: ApiAdminLogoutRoute,
+  ApiPlayerLoginRoute: ApiPlayerLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -6,15 +6,15 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Crew Access — Crew On Set!" },
-      { name: "description", content: "Sign in to the Crew On Set! player portal or studio admin console." },
+      { name: "description", content: "Sign in to the Crew On Set! player portal." },
       { property: "og:title", content: "Crew Access — Crew On Set!" },
-      { property: "og:description", content: "Sign in to the Crew On Set! player portal or studio admin console." },
+      { property: "og:description", content: "Sign in to the Crew On Set! player portal." },
     ],
   }),
   beforeLoad: async () => {
     const session = await getCrewSession();
-    if (session.isAdmin) throw redirect({ to: "/admin" });
     if (session.isPlayer) throw redirect({ to: "/portal" });
+    if (session.isAdmin) throw redirect({ to: "/admin" });
   },
   component: LoginPage,
 });
